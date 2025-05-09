@@ -2,6 +2,11 @@
 <html lang="en">
 
 <head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
     <!-- Basic -->
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -11,7 +16,7 @@
     <meta name="author" content="" />
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}" type="">
 
-    <title>Feane</title>
+    <title>Kedai Terserah</title>
 
     <!-- Bootstrap core css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}" />
@@ -38,6 +43,7 @@
     @include('layouts.footer')
 
     <!-- Scripts -->
+
     <script src="{{ asset('js/jquery-3.4.1.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <script src="{{ asset('js/bootstrap.js') }}"></script>
@@ -46,7 +52,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
-
+    @stack('scripts')
 </body>
 
 </html>

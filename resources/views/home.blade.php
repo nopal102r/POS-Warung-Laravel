@@ -41,4 +41,6 @@
 </section>
 </div>
 <!-- end slider section -->
+ <!-- Tambahkan di bawah </section> atau setelah slider -->
+
 @endsection

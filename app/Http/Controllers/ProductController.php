@@ -35,6 +35,7 @@ class ProductController extends Controller
 
         return redirect()->route('product.index')->with('success', 'Product added successfully!');
     }
+    
 
     // Menampilkan form untuk mengedit produk
     public function edit($id)

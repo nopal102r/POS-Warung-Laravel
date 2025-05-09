@@ -12,7 +12,23 @@ class TransactionController extends Controller
     public function index()
     {
         $transactions = Transaction::with(['product', 'payment', 'buyer'])->get();
-        return view('transaction.index', compact('transactions'));
+
+        // Menyiapkan data untuk grafik
+        $sales = Transaction::selectRaw("DATE(created_at) as date, SUM(quantity) as total")
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Menyusun labels dan data untuk chart
+        $chartLabels = [];
+        $chartData = [];
+
+        foreach ($sales as $sale) {
+            $chartLabels[] = $sale->date; // label berdasarkan tanggal
+            $chartData[] = $sale->total;  // jumlah total item yang terjual
+        }
+
+        return view('transaction.index', compact('transactions', 'chartLabels', 'chartData'));
     }
 
     public function create()
@@ -24,17 +40,27 @@ class TransactionController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'payment_id' => 'required|exists:payments,id',
-            'buyer_id' => 'required|exists:buyers,id',
-        ]);
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'payment_id' => 'required|exists:payments,id',
+        'buyer_id' => 'required|exists:buyers,id',
+        'quantity' => 'required|integer|min:1',
+    ]);
 
-        Transaction::create($request->all());
+    $totalPrice = $this->calculateTotalPrice($request->product_id, $request->quantity);
 
-        return redirect()->route('transaction.index')->with('success', 'Transaction created successfully.');
-    }
+    Transaction::create([
+        'product_id' => $request->product_id,
+        'payment_id' => $request->payment_id,
+        'buyer_id' => $request->buyer_id,
+        'quantity' => $request->quantity,
+        'total_price' => $totalPrice,
+    ]);
+
+    return redirect()->route('transaction.index')->with('success', 'Transaction created successfully.');
+}
+
 
     public function edit($id)
     {
@@ -46,17 +72,28 @@ class TransactionController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $transaction = Transaction::findOrFail($id);
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'payment_id' => 'required|exists:payments,id',
-            'buyer_id' => 'required|exists:buyers,id',
-        ]);
-        $transaction->update($request->all());
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'payment_id' => 'required|exists:payments,id',
+        'buyer_id' => 'required|exists:buyers,id',
+        'quantity' => 'required|integer|min:1',
+    ]);
 
-        return redirect()->route('transaction.index')->with('success', 'Transaction updated successfully.');
-    }
+    $transaction = Transaction::findOrFail($id);
+    $totalPrice = $this->calculateTotalPrice($request->product_id, $request->quantity);
+
+    $transaction->update([
+        'product_id' => $request->product_id,
+        'payment_id' => $request->payment_id,
+        'buyer_id' => $request->buyer_id,
+        'quantity' => $request->quantity,
+        'total_price' => $totalPrice,
+    ]);
+
+    return redirect()->route('transaction.index')->with('success', 'Transaction updated successfully.');
+}
+
 
     public function destroy($id)
     {
@@ -65,4 +102,19 @@ class TransactionController extends Controller
 
         return redirect()->route('transaction.index')->with('success', 'Transaction deleted successfully.');
     }
+
+
+public function show($id)
+{
+    $transaction = Transaction::with(['product', 'payment', 'buyer'])->findOrFail($id);
+    return view('transaction.show', compact('transaction'));
+}
+
+private function calculateTotalPrice($productId, $quantity)
+{
+    $product = Product::findOrFail($productId);
+    return $product->price * $quantity;
+}
+
+
 }
